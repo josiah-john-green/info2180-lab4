@@ -12,70 +12,83 @@ document.addEventListener('DOMContentLoaded', function () {
         event.preventDefault();  
 
         const searchTerm = searchInput.value.trim();
+        
+        // Check if the input contains common code-like patterns
+        if (containsCode(searchTerm)) 
+        {
+        
+            alert('Input seems to contain code.');
+        
+        } 
+        else 
+        {
 
-        // Make an AJAX request to superheroes.php
-        const xhr = new XMLHttpRequest();
+            // Make an AJAX request to superheroes.php
+            const xhr = new XMLHttpRequest();
 
-        xhr.onreadystatechange = function () {
+            xhr.onreadystatechange = function () {
 
-            if (xhr.readyState === XMLHttpRequest.DONE) 
-            {
-
-                if (xhr.status === 200) 
+                if (xhr.readyState === XMLHttpRequest.DONE) 
                 {
 
-                    // Parse the JSON response
-                    const superheroes = JSON.parse(xhr.responseText);
-
-                    // Check if a search term is provided
-                    if (searchTerm === '') 
+                    if (xhr.status === 200) 
                     {
+
+                        // Parse the JSON response
+                        const superheroes = JSON.parse(xhr.responseText);
+
+                        // Check if a search term is provided
+                        if (searchTerm === '') 
+                        {
+                            
+                            // Display the full list
+                            displaySuperheroes(superheroes);
+
+                        } 
+                        else 
+                        {
+
+                            // Search for a matching superhero
+                            const matchingSuperhero = findMatchingSuperhero(superheroes, searchTerm);
+                            
+                            if (matchingSuperhero) 
+                            {
+
+                                // Display information about the matched superhero
+                                displaySuperheroInfo(matchingSuperhero);
+                            
+                            } 
+                            else
+                            {
+
+                                // Display "Result not found"
+                                heroList.innerHTML = '<li class="not-found">Superhero not found</li>';
+                                
+                            }
+
                         
-                        // Display the full list
-                        displaySuperheroes(superheroes);
+                        }
 
                     } 
                     else 
                     {
 
-                        // Search for a matching superhero
-                        const matchingSuperhero = findMatchingSuperhero(superheroes, searchTerm);
-                        
-                        if (matchingSuperhero) 
-                        {
+                        // Handle error
+                        console.error('Error fetching superheroes:', xhr.status);
 
-                            // Display information about the matched superhero
-                            displaySuperheroInfo(matchingSuperhero);
-                        
-                        } 
-                        else 
-                        {
-
-                            // Display "Result not found"
-                            heroList.innerHTML = '<li class="not-found">Superhero not found</li>';
-                            
-                        }
-                    
                     }
-
-                } 
-                else 
-                {
-
-                    // Handle error
-                    console.error('Error fetching superheroes:', xhr.status);
-
+                
                 }
             
-            }
-        
-        };
+            };
 
-        // Open the request
-        xhr.open('GET', 'superheroes.php', true);
+            // Open the request
+            xhr.open('GET', 'superheroes.php', true);
 
-        // Send the request
-        xhr.send();
+            // Send the request
+            xhr.send();
+        }
+
     });
 
     // Update the displaySuperheroes function
@@ -106,9 +119,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         superheroInfo.innerHTML = `
             <div class="superhero-info">
-                <h1>${superhero.alias}</h2>
-                <h2><strong>A.K.A</strong> ${superhero.name}</h2>
-                <h4>${superhero.biography}</h4>
+                <h3>${superhero.alias}</h3>
+                <h4><strong>A.K.A</strong> ${superhero.name}</h4>
+                <p>${superhero.biography}</p>
             </div>
         `;
 
@@ -121,5 +134,22 @@ document.addEventListener('DOMContentLoaded', function () {
         return superheroes.find(superhero => superhero.name.toLowerCase().includes(searchTerm.toLowerCase()) || superhero.alias.toLowerCase().includes(searchTerm.toLowerCase()));
     
     }
+
+    function containsCode(input) 
+    {
+
+        // Check for common code-like patterns
+        const codePatterns = [
+            /<script.*?>.*?<\/script>/gi, // Script tags
+            /<style.*?>.*?<\/style>/gi,   // Style tags
+            /<.*?on.*?=.*?>.*?<\/.*?>/gi, // Event attributes
+            /javascript:/gi,              // JavaScript protocol
+            /&#x.{1,6};/gi                // Hexadecimal entities
+        ];
+
+        return codePatterns.some(pattern => pattern.test(input));
+    
+    }
+
 
 });

@@ -157,7 +157,7 @@ form button:hover
 
 }
 
-.superhero-info h1 
+.superhero-info h3
 {
 
   color: #333;
@@ -169,7 +169,7 @@ form button:hover
 
 }
 
-.superhero-info h2 
+.superhero-info h4 
 {
 
   color: #333;
@@ -179,7 +179,7 @@ form button:hover
 
 }
 
-.superhero-info h4
+.superhero-info p
 {
 
   color: #333;
